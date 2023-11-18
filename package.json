@@ -1,0 +1,43 @@
+{
+  "name": "@thebugs/damerau-levenshtein",
+  "version": "1.0.0",
+  "description": "Implementation of the Damerau-Levenshtein edit distance.",
+  "files": [
+    "dist"
+  ],
+  "main": "dist/damerau-levenshtein.umd.js",
+  "module": "dist/damerau-levenshtein.es.js",
+  "exports": {
+    ".": {
+      "import": "./dist/damerau-levenshtein.es.js",
+      "require": "./dist/damerau-levenshtein.umd.js"
+    }
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.js$": "babel-jest"
+    }
+  },
+  "scripts": {
+    "build": "vite build",
+    "test": "jest"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.23.2",
+    "@babel/preset-env": "^7.23.2",
+    "babel-jest": "^29.7.0",
+    "jest": "^29.7.0",
+    "prettier": "^3.0.3",
+    "vite": "^4.5.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chiribuc/damerau-levenshtein.git"
+  },
+  "keywords": [
+    "damerau-levenshtein",
+    "edit distance"
+  ],
+  "author": "Robert-Cristian Chiribuc",
+  "license": "MIT"
+}

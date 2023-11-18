@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Damerau Levenshtein</title>
+</head>
+<body>
+<label for="searchInput">Search</label>
+<input type="text" id="searchInput">
+<div id="suggestions"></div>
+
+<script src="../dist/damerau-levenshtein.umd.js"></script>
+<script>
+  // Initialize the DamerauLevenshtein instance with your custom costs and flags
+  import DamerauLevenshtein from "../src/main";
+
+  const dl = new DamerauLevenshtein({
+    insert: 1,     // Insertion cost
+    remove: 1,     // Deletion cost
+    substitute: 1, // Substitution cost
+    transpose: 1, // Transposition cost
+  });
+
+  // Get the input and suggestions elements
+  const searchInput = document.getElementById('searchInput');
+  const suggestions = document.getElementById('suggestions');
+
+  // Listen for input events on the search bar
+  searchInput.addEventListener('input', () => {
+    const userQuery = searchInput.value;
+    const possibleSuggestions = ['apple', 'banana', 'cherry', 'date', 'fig'];
+
+    const correctedSuggestions = possibleSuggestions
+      .map((suggestion) => ({
+        suggestion,
+        distance: dl.distance(userQuery, suggestion),
+      }))
+      .sort((a, b) => a.distance - b.distance)
+      .map((suggestionObj) => suggestionObj.suggestion);
+
+    suggestions.innerHTML = '';
+    correctedSuggestions.forEach((suggestion) => {
+      const suggestionElement = document.createElement('div');
+      suggestionElement.textContent = suggestion;
+      suggestions.appendChild(suggestionElement);
+    });
+  });
+
+  const dl2 = new DamerauLevenshtein();
+  const distance = dl2.distance('hello', 'world');
+  console.log('DL distance for "hello" and "world": ', distance); // Output: 4
+
+
+
+</script>
+</body>
+</html>
