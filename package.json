@@ -1,5 +1,5 @@
 {
-  "name": "@thebugs/damerau-levenshtein",
+  "name": "@crob/damerau-levenshtein",
   "version": "1.0.0",
   "description": "Implementation of the Damerau-Levenshtein edit distance.",
   "files": [

@@ -6,11 +6,11 @@ This implementation is suitable for use in web applications.
 
 ## Installation
 
-You can install this module via [npm](https://www.npmjs.com/@thebugs/damerau-levenshtein). Open your terminal or command prompt and run the
+You can install this module via [npm](https://www.npmjs.com/@crob/damerau-levenshtein). Open your terminal or command prompt and run the
 following command:
 
 ```sh
-npm i @thebugs/damerau-levenshtein
+npm i @crob/damerau-levenshtein
 ```
 
 ## Usage
@@ -21,7 +21,7 @@ You can calculate the Damerau-Levenshtein distance between two strings by import
 DamerauLevenshtein class:
 
 ```js
-import DamerauLevenshtein from '@thebugs/damerau-levenshtein';
+import DamerauLevenshtein from '@crob/damerau-levenshtein';
 
 const dl = new DamerauLevenshtein();
 const distance = dl.distance('hello', 'world');
@@ -34,7 +34,7 @@ This module supports specifying custom costs for insertions, removals, substitut
 DamerauLevenshtein class. Here's an example:
 
 ```js
-import DamerauLevenshtein from '@thebugs/damerau-levenshtein';
+import DamerauLevenshtein from '@crob/damerau-levenshtein';
 
 const dl = new DamerauLevenshtein({
     insert: 1,
@@ -58,7 +58,7 @@ console.log(distance); // Output: Customized Damerau-Levenshtein distance
 You can turn off the Damerau transposition to calculate the standard Levenshtein distance using the DamerauLevenshtein class:
 
 ```js
-import DamerauLevenshtein from '@thebugs/damerau-levenshtein';
+import DamerauLevenshtein from '@crob/damerau-levenshtein';
 
 const dl = new DamerauLevenshtein({}, false);
 const distance = dl.distance("A string", "Another string");
@@ -75,7 +75,7 @@ Here's an example of how to use the Damerau-Levenshtein module to implement a si
 ```
 
 ```js
-import DamerauLevenshtein from '@thebugs/damerau-levenshtein';
+import DamerauLevenshtein from '@crob/damerau-levenshtein';
 
 // Initialize the DamerauLevenshtein instance with your custom costs and flags
 const dl = new DamerauLevenshtein();
