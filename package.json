@@ -1,6 +1,6 @@
 {
   "name": "@crob/damerau-levenshtein",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Implementation of the Damerau-Levenshtein edit distance.",
   "files": [
     "dist"
