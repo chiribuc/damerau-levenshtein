@@ -1,6 +1,6 @@
 class DamerauLevenshtein {
   constructor(options = {}, damerau = false) {
-    this.damerau = damerau;
+    this.damerau = damerau || !!options.transpose;
     this.insert = this.getCostFunction(options.insert, 1);
     this.remove = this.getCostFunction(options.remove, 1);
     this.substitute = this.getCostFunction(options.substitute, 1);
@@ -51,7 +51,7 @@ class DamerauLevenshtein {
           ) {
             ds[i][j] = Math.min(
               ds[i][j],
-              ds[i - 2][j - 2] + this.transpose(down[i - 1], down[i - 2]) + 1,
+              ds[i - 2][j - 2] + this.transpose(down[i - 1], down[i - 2]),
             );
           }
         }
