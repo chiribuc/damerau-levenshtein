@@ -1,3 +1,15 @@
+## 2.0.2 - 2026-08-15
+
+### What's Changed
+
+* Full TypeScript conversion
+
+### New Contributors
+
+* @dependabot[bot] made their first contribution in https://github.com/chiribuc/damerau-levenshtein/pull/6
+
+**Full Changelog**: https://github.com/chiribuc/damerau-levenshtein/compare/1.0.2...2.0.2
+
 ## 2.0.0 - 2026-08-15
 
 Rewritten in TypeScript, with a breaking change to the constructor. See the migration
