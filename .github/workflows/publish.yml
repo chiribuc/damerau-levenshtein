@@ -3,6 +3,15 @@ name: Publish
 on:
   release:
     types: [published]
+  # Manual escape hatch: editing a release only emits `edited`, so a release
+  # whose tag was fixed after the fact never re-fires `published`. Dispatch this
+  # workflow against the tag instead of deleting and re-creating the release.
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing tag to publish, e.g. 2.0.0"
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -16,6 +25,9 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+
       - uses: actions/setup-node@v6
         with:
           node-version: 24
@@ -33,12 +45,15 @@ jobs:
 
       - name: Verify the tag matches package.json
         run: |
-          TAG="${GITHUB_REF_NAME#v}"
+          TAG="${{ inputs.tag || github.ref_name }}"
+          TAG="${TAG#v}"
           PKG="$(node -p "require('./package.json').version")"
           if [ "$TAG" != "$PKG" ]; then
             echo "Release tag ($TAG) does not match package.json version ($PKG)." >&2
+            echo "Fix package.json on main and re-tag, or dispatch this workflow against the right tag." >&2
             exit 1
           fi
+          echo "Publishing $PKG from tag $TAG."
 
       # `--provenance` lives here rather than in publishConfig so that manual
       # publishes from a laptop (where provenance cannot be generated) still work.
