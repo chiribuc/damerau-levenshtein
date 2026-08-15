@@ -34,4 +34,10 @@ describe("DamerauLevenshtein", () => {
 
     expect(dl.distance("kittens", "ktnitens")).toBe(3);
   });
+
+  it("should handle transpositions", () => {
+    const dl = new DamerauLevenshtein({}, true);
+
+    expect(dl.distance("ab", "ba")).toBe(1);
+  });
 });
