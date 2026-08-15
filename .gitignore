@@ -1,10 +1,9 @@
 # dependencies
 node_modules
 
-# production
-build
+# build output
 dist
-dist-ssr
+coverage
 *.local
 
 # logs

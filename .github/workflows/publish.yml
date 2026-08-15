@@ -4,16 +4,46 @@ on:
   release:
     types: [published]
 
+permissions:
+  contents: read
+
 jobs:
-  build:
+  publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      # Required for npm provenance attestations.
+      id-token: write
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
         with:
-          node-version: 18
+          node-version: 24
+          cache: npm
           registry-url: https://registry.npmjs.org/
-      - run: npm install
-      - run: npm publish --access public
+
+      - run: npm ci
+
+      # The tarball ships built output only, so a broken build must never reach
+      # the registry: verify everything before publishing.
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - run: npm run lint:package
+
+      - name: Verify the tag matches package.json
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          PKG="$(node -p "require('./package.json').version")"
+          if [ "$TAG" != "$PKG" ]; then
+            echo "Release tag ($TAG) does not match package.json version ($PKG)." >&2
+            exit 1
+          fi
+
+      # `--provenance` lives here rather than in publishConfig so that manual
+      # publishes from a laptop (where provenance cannot be generated) still work.
+      # Drop `NODE_AUTH_TOKEN` once npm trusted publishing is configured for this
+      # package: OIDC then replaces the NPM_TOKEN secret entirely.
+      - run: npm publish --provenance
         env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

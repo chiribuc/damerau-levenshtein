@@ -1,57 +1,92 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Damerau Levenshtein</title>
-</head>
-<body>
-<label for="searchInput">Search</label>
-<input type="text" id="searchInput">
-<div id="suggestions"></div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Damerau-Levenshtein — spelling suggestions</title>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        max-width: 34rem;
+        margin: 3rem auto;
+        padding: 0 1rem;
+        line-height: 1.5;
+      }
+      input {
+        font: inherit;
+        width: 100%;
+        padding: 0.5rem;
+        box-sizing: border-box;
+      }
+      ol {
+        padding-left: 1.25rem;
+      }
+      .distance {
+        color: #666;
+        font-variant-numeric: tabular-nums;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Spelling suggestions</h1>
+    <p>
+      Type a fruit name — misspell it on purpose — and the dictionary is ranked by
+      Damerau-Levenshtein distance.
+    </p>
 
-<script src="../dist/damerau-levenshtein.umd.js"></script>
-<script>
-  // Initialize the DamerauLevenshtein instance with your custom costs and flags
-  import DamerauLevenshtein from "../src/main";
+    <label for="query">Search</label>
+    <input id="query" type="text" value="aplpe" autocomplete="off" />
 
-  const dl = new DamerauLevenshtein({
-    insert: 1,     // Insertion cost
-    remove: 1,     // Deletion cost
-    substitute: 1, // Substitution cost
-    transpose: 1, // Transposition cost
-  });
+    <ol id="suggestions"></ol>
 
-  // Get the input and suggestions elements
-  const searchInput = document.getElementById('searchInput');
-  const suggestions = document.getElementById('suggestions');
+    <!--
+      Run `npm run build` first, then serve the repository root, e.g.:
+        npx serve .
+      and open /example/ in a browser. Opening this file over file:// will not
+      work: ES modules require http(s).
+    -->
+    <script type="module">
+      import { DamerauLevenshtein } from "../dist/index.js";
 
-  // Listen for input events on the search bar
-  searchInput.addEventListener('input', () => {
-    const userQuery = searchInput.value;
-    const possibleSuggestions = ['apple', 'banana', 'cherry', 'date', 'fig'];
+      const dl = new DamerauLevenshtein();
+      const dictionary = [
+        "apple",
+        "banana",
+        "orange",
+        "pear",
+        "peach",
+        "pineapple",
+        "plum",
+        "strawberry",
+      ];
 
-    const correctedSuggestions = possibleSuggestions
-      .map((suggestion) => ({
-        suggestion,
-        distance: dl.distance(userQuery, suggestion),
-      }))
-      .sort((a, b) => a.distance - b.distance)
-      .map((suggestionObj) => suggestionObj.suggestion);
+      const query = document.querySelector("#query");
+      const suggestions = document.querySelector("#suggestions");
 
-    suggestions.innerHTML = '';
-    correctedSuggestions.forEach((suggestion) => {
-      const suggestionElement = document.createElement('div');
-      suggestionElement.textContent = suggestion;
-      suggestions.appendChild(suggestionElement);
-    });
-  });
+      function render() {
+        const term = query.value.trim().toLowerCase();
 
-  const dl2 = new DamerauLevenshtein();
-  const distance = dl2.distance('hello', 'world');
-  console.log('DL distance for "hello" and "world": ', distance); // Output: 4
+        suggestions.replaceChildren(
+          ...dictionary
+            .map((word) => ({ word, score: dl.distance(term, word) }))
+            .sort((a, b) => a.score - b.score || a.word.localeCompare(b.word))
+            .slice(0, 5)
+            .map(({ word, score }) => {
+              const item = document.createElement("li");
+              item.textContent = `${word} `;
 
+              const badge = document.createElement("span");
+              badge.className = "distance";
+              badge.textContent = `(distance ${score})`;
+              item.append(badge);
 
+              return item;
+            }),
+        );
+      }
 
-</script>
-</body>
+      query.addEventListener("input", render);
+      render();
+    </script>
+  </body>
 </html>

@@ -1,28 +1,51 @@
-name: "Update Changelog"
+name: Update Changelog
 
 on:
   release:
     types: [released]
 
+permissions:
+  contents: read
+
 jobs:
   update:
     runs-on: ubuntu-latest
-
+    permissions:
+      contents: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
         with:
           ref: main
 
+      # Hand-written entries win. The action skips versions it already finds,
+      # but only by prefix-matching the release name, so `v2.0.0` against a
+      # `## 2.0.0` heading would slip through and append a duplicate section.
+      - name: Check whether the changelog already covers this release
+        id: release
+        run: |
+          VERSION="${{ github.event.release.tag_name }}"
+          VERSION="${VERSION#v}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+          if grep -q "^## ${VERSION} " CHANGELOG.md || grep -q "^## ${VERSION}$" CHANGELOG.md; then
+            echo "documented=true" >> "$GITHUB_OUTPUT"
+            echo "CHANGELOG.md already documents ${VERSION}; leaving it alone."
+          else
+            echo "documented=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Update Changelog
+        if: steps.release.outputs.documented == 'false'
         uses: stefanzweifel/changelog-updater-action@v1
         with:
-          latest-version: ${{ github.event.release.name }}
+          latest-version: ${{ steps.release.outputs.version }}
           release-notes: ${{ github.event.release.body }}
 
       - name: Commit updated CHANGELOG
+        if: steps.release.outputs.documented == 'false'
         uses: stefanzweifel/git-auto-commit-action@v7
         with:
           branch: main
-          commit_message: Update CHANGELOG
+          commit_message: "docs: update CHANGELOG"
           file_pattern: CHANGELOG.md
