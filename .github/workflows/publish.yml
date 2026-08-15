@@ -28,7 +28,7 @@ jobs:
         with:
           ref: ${{ inputs.tag || github.ref }}
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
@@ -57,8 +57,19 @@ jobs:
 
       # `--provenance` lives here rather than in publishConfig so that manual
       # publishes from a laptop (where provenance cannot be generated) still work.
-      # Drop `NODE_AUTH_TOKEN` once npm trusted publishing is configured for this
-      # package: OIDC then replaces the NPM_TOKEN secret entirely.
-      - run: npm publish --provenance
+      #
+      # Works with either credential scheme:
+      #  - NPM_TOKEN secret set  -> classic token auth;
+      #  - secret absent         -> npm trusted publishing over OIDC, which needs
+      #                             npm >= 11.5.1 (bundled with Node 24).
+      # setup-node always writes an `_authToken` line into the generated .npmrc;
+      # left empty it breaks OIDC auth, so strip it when there is no token.
+      - name: Publish to npm
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -z "$NODE_AUTH_TOKEN" ] && [ -n "$NPM_CONFIG_USERCONFIG" ]; then
+            echo "No NPM_TOKEN set; relying on trusted publishing (npm $(npm --version))."
+            sed -i '/_authToken/d' "$NPM_CONFIG_USERCONFIG"
+          fi
+          npm publish --provenance
